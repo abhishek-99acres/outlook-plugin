@@ -4,7 +4,7 @@
   xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xsi:type="MailApp">
 
   <Id>a1b2c3d4-0000-4f59-883a-f6fff90e5dcc</Id>
-  <Version>1.0.0.8</Version>
+  <Version>1.0.1.0</Version>
   <ProviderName>99Acres</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Attachment Categorizer"/>
@@ -20,7 +20,7 @@
   </Hosts>
   <Requirements>
     <Sets>
-      <Set Name="Mailbox" MinVersion="1.1"/>
+      <Set Name="Mailbox" MinVersion="1.2"/>
     </Sets>
   </Requirements>
   <FormSettings>
@@ -51,13 +51,12 @@
         <Host xsi:type="MailHost">
 
           <Runtimes>
-            <!--
-              taskpane.html IS the shared runtime.
-              It loads commands.js so events + UI share ONE warm JS context. lifetime="long" keeps it alive the whole compose session.
-              OnMessageSend fires into an already-loaded runtime — no timeout.
-            -->
-            <Runtime resid="Taskpane.Url" lifetime="long"/>
-          </Runtimes>
+              <!-- Outlook Web, Mac, New Windows → loads commands.html which loads commands.js -->
+              <Runtime resid="WebViewRuntime.Url">
+                <!-- Classic Outlook Windows → loads commands.js directly -->
+                <Override type="javascript" resid="JSRuntime.Url"/>
+              </Runtime>
+            </Runtimes>
 
           <DesktopFormFactor>
             <ExtensionPoint xsi:type="MessageComposeCommandSurface">
@@ -89,10 +88,9 @@
                 <LaunchEvent Type="OnNewMessageCompose" FunctionName="onNewMessageComposeHandler"/>
                 <LaunchEvent Type="OnMessageAttachmentsChanged" FunctionName="onMessageAttachmentsChangedHandler"/>
                 <LaunchEvent Type="OnMessageRecipientsChanged" FunctionName="onMessageRecipientsChangedHandler"/>
-                <!-- <LaunchEvent Type="OnMessageSend" FunctionName="onMessageSendHandler" SendMode="SoftBlock"/> -->
                 <LaunchEvent Type="OnMessageSend" FunctionName="onMessageSendHandler" SendMode="SoftBlock"/>
               </LaunchEvents>
-              <SourceLocation resid="Taskpane.Url"/>
+              <SourceLocation resid="WebViewRuntime.Url"/>
             </ExtensionPoint>
           </DesktopFormFactor>
 
