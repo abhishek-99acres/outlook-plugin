@@ -19,9 +19,7 @@ const KNOWN_PREFIXES = [
   "Invoice_", "Report_", "Presentation_", "Reference_", "General_",
 ];
 
-// ── SEND HANDLER ──────────────────────────────────────────────────────────────
-// Synchronous. No await. No API calls. Done in <1ms.
-// Checks if filename starts with a known prefix (set by taskpane on Apply).
+// ── SEND HANDLER — sync, zero API calls ──────────────────────────────────────
 
 function onMessageSendHandler(event) {
   try {
@@ -32,8 +30,8 @@ function onMessageSendHandler(event) {
       return;
     }
 
-    var bad = attachments.filter(function (a) {
-      return !KNOWN_PREFIXES.some(function (p) { return a.name.startsWith(p); });
+    var bad = attachments.filter(function(a) {
+      return !KNOWN_PREFIXES.some(function(p) { return a.name.startsWith(p); });
     });
 
     if (bad.length === 0) {
@@ -45,11 +43,11 @@ function onMessageSendHandler(event) {
       allowEvent: false,
       errorMessage:
         bad.length + " attachment(s) not categorized:\n" +
-        bad.map(function (a) { return "  \u2022 " + a.name; }).join("\n") +
+        bad.map(function(a) { return "  \u2022 " + a.name; }).join("\n") +
         "\n\nOpen 'View Categories' in the ribbon to label them.",
     });
 
-  } catch (e) {
+  } catch(e) {
     console.error("[AttachCat] send error:", e);
     event.completed({ allowEvent: true });
   }
@@ -58,7 +56,7 @@ function onMessageSendHandler(event) {
 // ── COMPOSE EVENTS ────────────────────────────────────────────────────────────
 
 function onNewMessageComposeHandler(event) {
-  try { updateNotification(); } catch (e) {}
+  try { updateNotification(); } catch(e) {}
   event.completed();
 }
 
@@ -66,27 +64,25 @@ function onMessageAttachmentsChangedHandler(event) {
   try {
     updateNotification();
     var attachments = Office.context.mailbox.item.attachments || [];
-    var hasUncategorized = attachments.some(function (a) {
-      return !KNOWN_PREFIXES.some(function (p) { return a.name.startsWith(p); });
+    var hasUncategorized = attachments.some(function(a) {
+      return !KNOWN_PREFIXES.some(function(p) { return a.name.startsWith(p); });
     });
     if (hasUncategorized && Office.addin && Office.addin.showAsTaskpane) {
       Office.addin.showAsTaskpane();
     }
-  } catch (e) {}
+  } catch(e) {}
   event.completed();
 }
 
 function onMessageRecipientsChangedHandler(event) {
-  try { updateNotification(); } catch (e) {}
+  try { updateNotification(); } catch(e) {}
   event.completed();
 }
 
-// ── NOTIFICATION BAR ──────────────────────────────────────────────────────────
-
 function updateNotification() {
   var attachments = Office.context.mailbox.item.attachments || [];
-  var bad = attachments.filter(function (a) {
-    return !KNOWN_PREFIXES.some(function (p) { return a.name.startsWith(p); });
+  var bad = attachments.filter(function(a) {
+    return !KNOWN_PREFIXES.some(function(p) { return a.name.startsWith(p); });
   });
   var msg = attachments.length === 0
     ? "Attach a file — the categorizer will open automatically."
@@ -102,11 +98,14 @@ function updateNotification() {
   });
 }
 
-// ── REGISTER ──────────────────────────────────────────────────────────────────
+// ── REGISTER ─────────────────────────────────────────────────────────────────
+// IMPORTANT: Use Office.onReady when loaded inside taskpane.html (shared runtime).
+// This ensures Office.actions is fully initialized before we register handlers.
 
-if (typeof Office !== "undefined") {
+Office.onReady(function() {
   Office.actions.associate("onNewMessageComposeHandler",         onNewMessageComposeHandler);
   Office.actions.associate("onMessageAttachmentsChangedHandler", onMessageAttachmentsChangedHandler);
   Office.actions.associate("onMessageRecipientsChangedHandler",  onMessageRecipientsChangedHandler);
   Office.actions.associate("onMessageSendHandler",               onMessageSendHandler);
-}
+  console.log("[AttachCat] handlers registered");
+});
