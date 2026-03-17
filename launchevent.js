@@ -8,6 +8,8 @@ function onMessageSendHandler(event) {
     errorMessage: "onMessageSendHandler receiving the event !",
     debugMessage: "onMessageSendHandler receiving the event !",
   });
+
+  
   const targetEmail = "coder.abhi02@gmail.com".toLowerCase();
 
   // 1. Check 'To' recipients

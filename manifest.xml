@@ -107,6 +107,7 @@
         </bt:Images>
         <bt:Urls>
           <bt:Url id="WebViewRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-plugin/commands.html"/>
+          <!-- <bt:Url id="WebViewRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-plugin/taskpane.html"/> -->
           <bt:Url id="JSRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-plugin/commands.js"/>
           <bt:Url id="Taskpane.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-plugin/taskpane.html"/>
         </bt:Urls>
