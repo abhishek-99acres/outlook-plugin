@@ -79,9 +79,15 @@ function onMessageSendHandler(event) {
 // ── COMPOSE EVENTS ────────────────────────────────────────────────────────────
 
 function onNewMessageComposeHandler(event) {
-  console.log("***********************\n");
-  console.log("Composing the message handler!\n");
-  console.log("***********************");
+  // console.log("***********************\n");
+  // console.log("Composing the message handler!\n");
+  // console.log("***********************");
+
+  event.completed({
+    allowEvent: false, // Cancel the send action
+    errorMessage: "This email cannot be sent due to policy reasons.",
+  });
+
   try {
     updateNotification();
   } catch (e) {}
